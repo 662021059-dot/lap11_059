@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:lap11_059/page/Showproduct.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Showproduct.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,7 +19,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // ✅ รองรับทั้ง Web และ Emulator
   String get baseUrl {
     if (kIsWeb) {
       return "http://localhost:3000";
@@ -31,58 +30,124 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Login", style: TextStyle(fontSize: 24)),
-                const SizedBox(height: 20),
+      backgroundColor: Colors.yellow.shade50, // 🌼 พื้นหลังอ่อน
+      body: Stack(
+        children: [
+          /// วงกลมพื้นหลังโทนเหลือง
+          Positioned(
+            top: -50,
+            left: -50,
+            child: _buildCircle(200, Colors.amber.shade200),
+          ),
+          Positioned(
+            bottom: -80,
+            right: -20,
+            child: _buildCircle(250, Colors.yellow.shade300),
+          ),
+          Positioned(
+            top: 200,
+            right: -40,
+            child: _buildCircle(150, Colors.amber.shade100),
+          ),
 
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: "Username",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) =>
-                      value!.isEmpty ? "กรุณากรอกชื่อผู้ใช้" : null,
-                ),
-                const SizedBox(height: 15),
-
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _isObscure,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isObscure ? Icons.visibility_off : Icons.visibility,
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const Text(
+                      "Welcome",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.brown, // 🌟 ตัวหนังสือเข้มขึ้น
                       ),
-                      onPressed: () => setState(() => _isObscure = !_isObscure),
                     ),
-                  ),
-                  validator: (value) =>
-                      value!.length < 4 ? "รหัสผ่านอย่างน้อย 4 ตัว" : null,
-                ),
-                const SizedBox(height: 20),
+                    const SizedBox(height: 30),
 
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _handleLogin();
-                    }
-                  },
-                  child: const Text("เข้าสู่ระบบ"),
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        labelText: "Username",
+                        prefixIcon: Icon(
+                          Icons.person,
+                          color: Colors.amber.shade700,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      validator: (value) =>
+                          value!.isEmpty ? "กรุณากรอกชื่อผู้ใช้" : null,
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _isObscure,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        prefixIcon: Icon(
+                          Icons.lock,
+                          color: Colors.amber.shade700,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscure
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.amber.shade700,
+                          ),
+                          onPressed: () =>
+                              setState(() => _isObscure = !_isObscure),
+                        ),
+                      ),
+                      validator: (value) =>
+                          value!.length < 4 ? "รหัสผ่านอย่างน้อย 4 ตัว" : null,
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _handleLogin();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.amber.shade600, // 🌟 ปุ่มเหลืองทอง
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 3,
+                        ),
+                        child: const Text(
+                          "เข้าสู่ระบบ",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -123,6 +188,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(backgroundColor: Colors.red.shade400, content: Text(msg)),
+    );
+  }
+
+  Widget _buildCircle(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.6),
+        shape: BoxShape.circle,
+      ),
+    );
   }
 }
